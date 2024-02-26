@@ -1,13 +1,10 @@
-// ignore_for_file: non_constant_identifier_names
-
-import 'dart:collection';
-import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:bmi_caluculator/result.dart';
 import 'package:bmi_caluculator/results.dart';
 import 'package:bmi_caluculator/sliderChanges.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:bmi_caluculator/colors/app_colors.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -20,11 +17,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final activeCardColor = const Color(0xFF1D1E33);
-  final inActiveCardColor = const Color(0xFF111323);
-  Color femaleCardColor = const Color(0xFF1D1E33);
-  Color maleCardColor = const Color(0xFF1D1E33);
-
   containerCard(final Color colour, final Widget childWidget) {
     return Expanded(
       child: Container(
@@ -39,30 +31,48 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  int currentSliderValue = 150;
+  int currentWeightValue = 70;
+  int currentAge = 23;
+
+  getBMI() {
+    final double height = currentSliderValue / 100;
+    final double bmi = currentWeightValue / (height * height);
+    return bmi.toInt();
+  }
+
+  getBMIContext() {
+    final bmi = getBMI();
+    if (bmi < 18.5) {
+      return 'Underweight';
+    } else if (bmi >= 18.5 && bmi < 24.9) {
+      return 'Normal weight';
+    } else if (bmi >= 24.9 && bmi < 29.9) {
+      return 'Overweight';
+    } else {
+      return 'Obese';
+    }
+  }
+
+  String getLikeMessageForBMI() {
+    final String message = getBMIContext();
+    switch (message) {
+      case 'Underweight':
+        return 'You have a lower than normal body weight. Good job!';
+      case 'Normal weight':
+        return 'You have a normal body weight. Good job!';
+      case 'Overweight':
+        return 'You have a higher than normal body weight. Try to exercise more!';
+      case 'Obese':
+        return 'You have an obese body weight. Please consult a doctor!';
+      default:
+        return 'Invalid BMI message';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color colourForContainer = Color(0xFF1D1E33);
-    SizedBoxReusable(double heightOfTheBox) {
-      return SizedBox(height: heightOfTheBox);
-    }
-
-    TextBoxReUsable(String text, double fontSize, Color fontColor) {
-      return Text(
-        text,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: fontColor,
-        ),
-      );
-    }
-
-    IconReUsable(IconData icon, double size) {
-      return Icon(
-        icon,
-        size: size,
-        color: Colors.white,
-      );
-    }
 
     updateTap(String gender) {
       setState(() {
@@ -76,8 +86,6 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
 
-    SliderCurrentValue SliderValue = SliderCurrentValue();
-    int height=150;
     return Scaffold(
       appBar: AppBar(
           title: const Center(
@@ -100,16 +108,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        IconReUsable(
-                          FontAwesomeIcons.mars,
-                          80.0,
-                        ),
-                        SizedBoxReusable(15.0),
-                        TextBoxReUsable(
-                          'Male',
-                          18.0,
-                          const Color(0xFF8D8E98),
-                        )
+                        iconReUsable(FontAwesomeIcons.mars, 80.0),
+                        sizedBoxReusable(15.0),
+                        textBoxReUsable('Male', 18.0, const Color(0xFF8D8E98))
                       ],
                     ),
                   ),
@@ -123,38 +124,52 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        IconReUsable(
-                          FontAwesomeIcons.venus,
-                          80.0,
-                        ),
-                        SizedBoxReusable(15.0),
-                        TextBoxReUsable(
-                          'Female',
-                          18.0,
-                          const Color(0xFF8D8E98),
-                        )
+                        iconReUsable(FontAwesomeIcons.venus, 80.0),
+                        sizedBoxReusable(15.0),
+                        textBoxReUsable('Female', 18.0, const Color(0xFF8D8E98))
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-            containerCard(
-              colourForContainer,
-              MiddleTile(
-                  currentSliderValue: SliderValue.getCurrentSliderValue()),
-            ),
+            containerCard(colourForContainer, MiddleTile(
+              sliderValue: (int value) {
+                setState(() {
+                  currentSliderValue = value;
+                });
+              },
+            )),
             Row(
               children: <Widget>[
                 containerCard(
                   colourForContainer,
-                  WeightWidget(),
+                  WeightWidget(
+                    weight: (weight) {
+                      print(weight);
+                      setState(() {
+                        currentWeightValue = weight;
+                      });
+                    },
+                  ),
                 ),
                 containerCard(
-                    colourForContainer,
-                    Column(
-                      children: const <Widget>[AgeWidget()],
-                    )),
+                  colourForContainer,
+                  Column(
+                    children: [
+                      WeightWidget(
+                        title: 'Age',
+                        deafultVal: 23,
+                        weight: (age) {
+                          print('Age:$age');
+                          setState(() {
+                            currentAge = age;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             Container(
@@ -171,22 +186,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 24.0, color: Colors.white),
                 ),
                 onPressed: () {
-                  setState(() {
-                    BMICAL sliderCurrentValue = BMICAL(
-                        height: SliderValue.getCurrentSliderValue(),
-                        weight: SliderValue.getCurrentWeightValue());
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Result(
-                          resultText: sliderCurrentValue.getBMIContext(),
-                          resultLongText:
-                              sliderCurrentValue.getLikeMessageForBMI(),
-                          BMIResult: sliderCurrentValue.getBMI(),
-                        ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Result(
+                        resultText: getBMIContext(),
+                        resultLongText: getLikeMessageForBMI(),
+                        BMIResult: getBMI(),
                       ),
-                    );
-                  });
+                    ),
+                  );
                 },
               ),
             ),
@@ -195,10 +204,34 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  Widget sizedBoxReusable(double heightOfTheBox) {
+    return SizedBox(height: heightOfTheBox);
+  }
+
+  Widget textBoxReUsable(String text, double fontSize, Color fontColor) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        color: fontColor,
+      ),
+    );
+  }
+
+  Widget iconReUsable(IconData icon, double size) {
+    return Icon(
+      icon,
+      size: size,
+      color: Colors.white,
+    );
+  }
 }
 
 class MiddleTile extends StatefulWidget {
-  const MiddleTile({super.key, required final int currentSliderValue});
+  final void Function(int) sliderValue;
+
+  const MiddleTile({super.key, required this.sliderValue});
   @override
   State<MiddleTile> createState() {
     return _MiddleTileState();
@@ -206,8 +239,7 @@ class MiddleTile extends StatefulWidget {
 }
 
 class _MiddleTileState extends State<MiddleTile> {
-  SliderCurrentValue SliderValue = SliderCurrentValue();
-  int currentSliderValue = 150;
+  double val = 150;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -230,7 +262,7 @@ class _MiddleTileState extends State<MiddleTile> {
               padding: const EdgeInsets.all(5.0),
               child: Center(
                   child: Text(
-                SliderValue.getCurrentSliderValue().toString(),
+                val.toStringAsFixed(2),
                 style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -253,11 +285,11 @@ class _MiddleTileState extends State<MiddleTile> {
           child: Slider(
             onChanged: (double value) {
               setState(() {
-                currentSliderValue = value.round();
-                // SliderValue.updateSliderValue(currentSliderValue);
+                val = value;
               });
+              widget.sliderValue(value.toInt());
             },
-            value: SliderValue.getCurrentSliderValue().toDouble(),
+            value: val,
             min: 100.0,
             max: 220.0,
             activeColor: const Color.fromARGB(255, 183, 179, 179),
@@ -270,55 +302,62 @@ class _MiddleTileState extends State<MiddleTile> {
 }
 
 class WeightWidget extends StatefulWidget {
-  const WeightWidget({super.key});
+  final void Function(int) weight;
+  final String title;
+  final int deafultVal;
+
+  const WeightWidget({
+    super.key,
+    required this.weight,
+    this.title = 'Weight',
+    this.deafultVal = 70,
+  });
 
   @override
   State<WeightWidget> createState() => _WeightWidgetState();
 }
 
 class _WeightWidgetState extends State<WeightWidget> {
-  SliderCurrentValue SliderValue = SliderCurrentValue();
+  int weight = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    weight = widget.deafultVal;
+  }
+
+  updateWeight({String type = 'Increment'}) {
+    if (type == 'Increment') {
+      setState(() {
+        weight += 1;
+        widget.weight(weight);
+      });
+    } else {
+      weight -= 1;
+      widget.weight(weight);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    String currentWeightValue = SliderValue.getCurrentWeightValue().toString();
-    updateWeight(String type) {
-      if (type == 'Increment') {
-        SliderValue.incrementWeight();
-      } else {
-        SliderValue.decrementWeight();
-      }
-      setState(() {
-        currentWeightValue = SliderValue.getCurrentWeightValue().toString();
-      });
-    }
-
-    TextBoxReUsable(String text, double fontSize, Color fontColor) {
-      return Text(
-        text,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: fontColor,
-        ),
-      );
-    }
-
     return Column(
       children: <Widget>[
         Container(
           margin: const EdgeInsets.only(top: 20.0),
-          child: TextBoxReUsable('Weight', 18.0, const Color(0xFF8D8E98)),
+          child: textBoxReUsable(widget.title, 18.0, const Color(0xFF8D8E98)),
         ),
         Container(
-          child: TextBoxReUsable(currentWeightValue, 50.0, Colors.white),
+          child: textBoxReUsable(weight.toString(), 50.0, Colors.white),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             FloatingActionButton.small(
-              heroTag: 'ss',
+              heroTag: '${widget.title}-ss',
               backgroundColor: const Color(0xFF4C4F5E),
               onPressed: () {
-                updateWeight('Increment');
+                updateWeight();
               },
               shape: const CircleBorder(),
               child: const SizedBox(
@@ -332,10 +371,10 @@ class _WeightWidgetState extends State<WeightWidget> {
               ),
             ),
             FloatingActionButton.small(
-              heroTag: 'ss22',
+              heroTag: '${widget.title}-s22',
               backgroundColor: const Color(0xFF4C4F5E),
               onPressed: () {
-                updateWeight(' ');
+                updateWeight(type: '');
               },
               shape: const CircleBorder(),
               child: const Icon(
@@ -349,86 +388,14 @@ class _WeightWidgetState extends State<WeightWidget> {
       ],
     );
   }
-}
 
-class AgeWidget extends StatefulWidget {
-  const AgeWidget({super.key});
-
-  @override
-  State<AgeWidget> createState() => _AgeWidgetState();
-}
-
-class _AgeWidgetState extends State<AgeWidget> {
-  SliderCurrentValue SliderValue = SliderCurrentValue();
-  @override
-  Widget build(BuildContext context) {
-    String currentAgeValue = SliderValue.getCurrentAgeValue().toString();
-    updateWeight(String type) {
-      if (type == 'Increment') {
-        SliderValue.incrementAge();
-      } else {
-        SliderValue.decrementAge();
-      }
-      setState(() {
-        currentAgeValue = SliderValue.getCurrentAgeValue().toString();
-      });
-    }
-
-    TextBoxReUsable(String text, double fontSize, Color fontColor) {
-      return Text(
-        text,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: fontColor,
-        ),
-      );
-    }
-
-    return Column(
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(top: 20.0),
-          child: TextBoxReUsable('Age', 18.0, const Color(0xFF8D8E98)),
-        ),
-        Container(
-          child: TextBoxReUsable(currentAgeValue, 50.0, Colors.white),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            FloatingActionButton.small(
-              heroTag: 'ss1',
-              backgroundColor: const Color(0xFF4C4F5E),
-              onPressed: () {
-                updateWeight('Increment');
-              },
-              shape: const CircleBorder(),
-              child: const SizedBox(
-                width: 40.0,
-                height: 40.0,
-                child: Icon(
-                  Icons.add,
-                  size: 35.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            FloatingActionButton.small(
-              heroTag: 'ss2',
-              backgroundColor: const Color(0xFF4C4F5E),
-              onPressed: () {
-                updateWeight(' ');
-              },
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.remove,
-                size: 35.0,
-                color: Colors.white,
-              ),
-            )
-          ],
-        )
-      ],
+  Widget textBoxReUsable(String text, double fontSize, Color fontColor) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: fontSize,
+        color: fontColor,
+      ),
     );
   }
 }
