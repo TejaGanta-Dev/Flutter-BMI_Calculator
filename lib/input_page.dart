@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:bmi_caluculator/result.dart';
-import 'package:bmi_caluculator/results.dart';
-import 'package:bmi_caluculator/sliderChanges.dart';
 import 'package:bmi_caluculator/colors/app_colors.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -17,23 +13,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  containerCard(final Color colour, final Widget childWidget) {
-    return Expanded(
-      child: Container(
-        height: 185.0,
-        margin: const EdgeInsets.all(15.0),
-        decoration: BoxDecoration(
-          color: colour,
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: childWidget,
-      ),
-    );
-  }
 
   int currentSliderValue = 150;
   int currentWeightValue = 70;
   int currentAge = 23;
+  var maleCardColor=activeCardColor;
+  var femaleCardColor=inActiveCardColor;
 
   getBMI() {
     final double height = currentSliderValue / 100;
@@ -90,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
           title: const Center(
               child: Text(
-        'BMI Caluculator',
+        'BMI Calculator',
         style: TextStyle(color: Colors.white),
       ))),
       body: SafeArea(
@@ -146,7 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   colourForContainer,
                   WeightWidget(
                     weight: (weight) {
-                      print(weight);
                       setState(() {
                         currentWeightValue = weight;
                       });
@@ -161,7 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         title: 'Age',
                         deafultVal: 23,
                         weight: (age) {
-                          print('Age:$age');
                           setState(() {
                             currentAge = age;
                           });
@@ -192,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       builder: (context) => Result(
                         resultText: getBMIContext(),
                         resultLongText: getLikeMessageForBMI(),
-                        BMIResult: getBMI(),
+                        bmiCal: getBMI(),
                       ),
                     ),
                   );
@@ -226,6 +209,19 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.white,
     );
   }
+   Widget containerCard(final Color colour, final Widget childWidget) {
+    return Expanded(
+      child: Container(
+        height: 185.0,
+        margin: const EdgeInsets.all(15.0),
+        decoration: BoxDecoration(
+          color: colour,
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: childWidget,
+      ),
+    );
+  }
 }
 
 class MiddleTile extends StatefulWidget {
@@ -250,7 +246,7 @@ class _MiddleTileState extends State<MiddleTile> {
           child: Center(
               child: Text(
             'HEIGHT',
-            style: TextStyle(color: const Color(0xFF8D8E98), fontSize: 20.0),
+            style: TextStyle(color:  Color(0xFF8D8E98), fontSize: 20.0),
           )),
         ),
         Row(

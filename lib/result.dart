@@ -1,18 +1,15 @@
-import 'package:bmi_caluculator/sliderChanges.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 // ignore: non_constant_identifier_names
 
 class Result extends StatelessWidget {
-  final int BMIResult;
+  final int bmiCal;
   final String resultText;
   final String resultLongText;
 
   const Result(
       {super.key,
-      required this.BMIResult,
+      required this.bmiCal,
       required this.resultLongText,
       required this.resultText});
   @override
@@ -69,7 +66,7 @@ class Result extends StatelessWidget {
                       ),
                       Expanded(
                         child: Text(
-                          BMIResult.toString(),
+                          bmiCal.toString(),
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 80.0,
@@ -111,6 +108,5 @@ class Result extends StatelessWidget {
             ],
           )),
     );
-    ;
   }
 }

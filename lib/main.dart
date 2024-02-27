@@ -1,7 +1,4 @@
 import 'package:bmi_caluculator/input_page.dart';
-import 'package:bmi_caluculator/result.dart';
-import 'package:bmi_caluculator/results.dart';
-import 'package:bmi_caluculator/sliderChanges.dart';
 import 'package:flutter/material.dart';
 
 void main() {
